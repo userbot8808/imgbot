@@ -21,7 +21,7 @@ async def crop(message: types.Message):
 
 @dp.message_handler(content_types=['photo'], state=Crop.imgsource)
 async def imgcrop(message: types.Message, state: FSMContext):
-    await state.update_data(photo_id=message.photo[-1].photo_id)
+    await state.update_data(photo_id=message.photo[-1].file_id)
 
     await message.answer("Введите высоту для обрезки в пикселях:")
 
