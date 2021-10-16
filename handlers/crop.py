@@ -21,7 +21,7 @@ async def crop(message: types.Message):
 
 @dp.message_handler(content_types=['photo'], state=Crop.imgsource)
 async def imgcrop(message: types.Message, state: FSMContext):
-    await message.photo[-1].download('sourcecrop.png')
+    await state.update_data(photo_id=message.photo[-1].photo_id)
 
     await message.answer("Введите высоту для обрезки в пикселях:")
 
@@ -46,14 +46,17 @@ async def height(message: types.Message, state: FSMContext):
     data = await state.get_data()
     width = data.get("width")
     height = data.get("height")
+    photo_id = data.get("photo_id")
 
     await message.answer(f"{width}\n{height}")
 
-    im = Image.open('sourcecrop.png')
-    im_new = crop_center(im, height, width)
-    im_new.save('crop.png', quality=95)
+    await bot.download_file_by_id(photo_id, f'{photo_id}.png')
 
-    crop = open('crop.png', 'rb')
+    im = Image.open(f'{photo_id}.png')
+    im_new = crop_center(im, height, width)
+    im_new.save(f'{photo_id}_crop.png', quality=95)
+
+    crop = open(f'{photo_id}_crop.png', 'rb')
 
     await message.answer(f"Держите результат:")
     await message.answer_photo(crop)
